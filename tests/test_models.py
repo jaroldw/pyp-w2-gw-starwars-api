@@ -46,3 +46,39 @@ class PeopleQuerySetTestCase(BaseStarWarsAPITestCase):
     def test_people_qs_count(self):
         qs = People.all()
         self.assertEqual(qs.count(), 15)
+
+class FilmsTestCase(BaseStarWarsAPITestCase):
+
+    @responses.activate
+    def test_films_model(self):
+        hope = Films.get(1)
+        self.assertEqual(hope.title, 'A New Hope')
+        self.assertEqual(hope.episode_id, 4)
+        self.assertEqual(hope.director, 'George Lucas')
+
+    @responses.activate
+    def test_films_model_not_found(self):
+        error = ('Request to SWAPI "/api/films/100" failed with '
+                 'status "404". Reason: {"detail": "Not found"}')
+        with self.assertRaisesRegexp(SWAPIClientError, error):
+            Films.get(100)
+
+
+class PeopleQuerySetTestCase(BaseStarWarsAPITestCase):
+
+    @responses.activate
+    def test_people_qs_next(self):
+        qs = Films.all()
+        obj = qs.next()
+        self.assertTrue(isinstance(obj, Films))
+        self.assertEqual(obj.title, 'A New Hope')
+
+    @responses.activate
+    def test_films_qs_iterable(self):
+        qs = Films.all()
+        self.assertEqual(len([elem for elem in qs]), 7)  # 10 in page1, 5 in page2
+
+    @responses.activate
+    def test_films_qs_count(self):
+        qs = Films.all()
+        self.assertEqual(qs.count(), 7)
