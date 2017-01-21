@@ -74,12 +74,13 @@ class Films(BaseModel):
 class BaseQuerySet(object):
 
     def __init__(self):
-        page_data = self._get_page_records()
+        page_data = self._get_page_data()
         self.total_records = page_data['count']
-        self.collected = -1
-        self.counter = -1
-        self.page = 1
         self.records = page_data['results']
+
+        self.collected = 0
+        self.counter = 0
+        self.page = 1  # page index starts at 1
 
     def __iter__(self):
         return self
@@ -91,23 +92,28 @@ class BaseQuerySet(object):
         """
 
         while True:
-            self.counter += 1
-            self.collected += 1
-
             if self.collected == self.total_records:
                 raise StopIteration
             if self.counter > len(self.records) - 1:
                 # get next page records and reset counter
                 self.page += 1
-                page_data = self._get_page_records(page_number=self.page)
+                page_data = self._get_page_data(page_number=self.page)
+
                 self.records = page_data['results']
                 self.counter = 0
 
-            return People(self.records[self.counter])
+            if self.RESOURCE_NAME == "people":
+                elem = People(self.records[self.counter])
+            if self.RESOURCE_NAME == "film":
+                elem = Films(self.records[self.counter])
+
+            self.counter += 1
+            self.collected += 1
+            return elem
 
     next = __next__
 
-    def _get_page_records(self, page_number=1):
+    def _get_page_data(self, page_number=1):
         if self.RESOURCE_NAME == 'people':
             json_data = api_client.get_people(**{'page': page_number})
         if self.RESOURCE_NAME == 'films':
