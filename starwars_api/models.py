@@ -22,12 +22,14 @@ class BaseModel(object):
         the api_client.
         """
 
-        if cls.RESOURCE_NAME == "people":
-            json_data = api_client.get_people(resource_id)
-            return People(json_data)
-        if cls.RESOURCE_NAME == "films":
-            json_data = api_client.get_films(resource_id)
-            return Films(json_data)
+        # if cls.RESOURCE_NAME == "people":
+        #     json_data = api_client.get_people(resource_id)
+        #     return People(json_data)
+        # if cls.RESOURCE_NAME == "films":
+        #     json_data = api_client.get_films(resource_id)
+        #     return Films(json_data)
+
+        return cls(getattr(api_client, "get_{}".format(cls.RESOURCE_NAME))(resource_id))
 
     @classmethod
     def all(cls):
