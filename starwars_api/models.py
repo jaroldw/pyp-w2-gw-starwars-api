@@ -47,13 +47,6 @@ class People(BaseModel):
     """Representing a single person"""
     RESOURCE_NAME = 'people'
 
-    """
-    def get_people(self, people_id=None, **params):
-        if people_id:
-            return self._get_swapi('/api/people/{}'.format(people_id))
-        return self._get_swapi('/api/people', **params)
-    """
-
     def __init__(self, json_data):
         super(People, self).__init__(json_data)
 
@@ -115,9 +108,9 @@ class BaseQuerySet(object):
 
     def _get_page_data(self, page_number=1):
         if self.RESOURCE_NAME == 'people':
-            json_data = api_client.get_people(**{'page': page_number})
+            json_data = api_client.get_people(page=page_number)
         if self.RESOURCE_NAME == 'films':
-            json_data = api_client.get_films(**{'page': page_number})
+            json_data = api_client.get_films(page=page_number)
 
         return json_data
 
